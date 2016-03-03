@@ -1,0 +1,11 @@
+Header header
+
+CurrentSensorData wheel_left
+CurrentSensorData wheel_right
+CurrentSensorData arm_linear
+CurrentSensorData arm_pitch
+CurrentSensorData arm_yaw
+
+HeatSensorData heat
+
+CO2SensorData co2
