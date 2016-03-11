@@ -29,7 +29,7 @@ class CommandDistributor(object):
         self.is_active = True
 
     def command_callback(self, command):
-        self._arm_command.data = [-int(command.arm_vel.base_yaw), -int(command.arm_vel.base_pitch), -int(command.arm_vel.base_pitch), int(command.arm_vel.elbow_pitch), int(command.arm_vel.wrist_yaw)]
+        self._arm_command.data = [-int(command.arm_vel.base_yaw), -int(command.arm_vel.base_pitch), -int(command.arm_vel.base_pitch), int(command.arm_vel.elbow_pitch), int(command.arm_vel.wrist_yaw), command.arm_vel.home_command]
         self._motor_command.data = [command.wheel_right_vel, command.wheel_left_vel, command.wheel_right_vel, command.wheel_left_vel]
 
     def publish_data(self):
