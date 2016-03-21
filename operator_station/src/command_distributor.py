@@ -22,6 +22,7 @@ class CommandDistributor(object):
         self._motor_command = Float32MultiArray()
 
         self.is_active = False
+        self._sub_success = False
 
     def activate(self):
         rospy.Subscriber(DEFAULT_SUB_COMMAND_TOPIC_NAME, YozakuraCommand, self.command_callback)
@@ -29,14 +30,22 @@ class CommandDistributor(object):
         self.is_active = True
 
     def command_callback(self, command):
-        self._arm_command.data = [-int(command.arm_vel.base_yaw), -int(command.arm_vel.base_pitch), -int(command.arm_vel.base_pitch), int(command.arm_vel.elbow_pitch), int(command.arm_vel.wrist_yaw), command.arm_vel.home_command]
+        self._arm_command.data = [-int(command.arm_vel.base_yaw), -int(command.arm_vel.base_pitch), -int(command.arm_vel.base_pitch), int(command.arm_vel.elbow_pitch), int(command.arm_vel.wrist_yaw), command.arm_vel.home_command, command.arm_vel.reset_torque_command]
         self._motor_command.data = [command.wheel_right_vel, command.wheel_left_vel, command.wheel_right_vel, command.wheel_left_vel]
+        self._sub_success = True
 
     def publish_data(self):
         if not self.is_active:
             self.activate()
         self._pub_arm_command.publish(self._arm_command)
         self._pub_motor_command.publish(self._motor_command)
+    
+    def reset_data(self):
+        if not self._sub_success:
+            self._arm_command.data = [0, 0, 0, 0, 0, 0, 0]
+            self._motor_command.data = [0.0, 0.0, 0.0, 0.0]
+        self._sub_success = False
+        
 
 # ------------------------------
 if __name__ == '__main__':
@@ -46,7 +55,8 @@ if __name__ == '__main__':
     command_distributor = CommandDistributor()
     command_distributor.activate()
 
-    while not rospy.is_shutdown():
+    while not rospy.is_shutdown():       
         command_distributor.publish_data()
+        command_distributor.reset_data()
         rate_mgr.sleep()
 #        rospy.spin()
